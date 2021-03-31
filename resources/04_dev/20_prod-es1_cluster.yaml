@@ -1,0 +1,99 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  namespace: dev
+  name: dev-es1
+spec:
+  #transport:
+  #  service:
+      #annotations:
+      #  cloud.google.com/load-balancer-type: "Internal"
+      #spec:
+      #  type: LoadBalancer
+  #http:
+  #  service:
+  #    spec:
+  #      type: LoadBalancer
+  version: 7.10.2
+  # auth:
+  #   fileRealm:
+  #   - secretName: generic-monitoring-user-file
+  nodeSets:
+  - name: default
+    count: 1
+    config:
+      node.roles: [ master, data, ingest ]
+      #node.store.allow_mmap: false
+      #xpack.security.audit.enabled: true
+      # For metricbeat based monitoring
+      xpack.monitoring.collection.enabled: true
+      xpack.monitoring.elasticsearch.collection.enabled: false
+    podTemplate:
+      metadata:
+        annotations:
+          co.elastic.logs/enabled: "true"
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        containers:
+        - name: elasticsearch
+          env:
+          - name: ES_JAVA_OPTS
+            value: -Xms500m -Xmx500m
+          resources:
+            requests:
+              #cpu: 1 # no request means 0.1 100m by default (too little CPU)
+              memory: 1Gi
+            limits:
+              memory: 1Gi
+              cpu: 1
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 20Gi
+#        storageClassName: default
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  namespace: dev
+  name: dev-es1
+spec:
+  http:
+    service:
+      spec:
+        type: LoadBalancer
+  version: 7.10.2
+  count: 1
+  #config:
+  #  xpack.security.encryptionKey: "fkasjdasdkfj273kjasdahsdjasdjasd7812"
+  config:
+    # https://www.elastic.co/guide/en/kibana/7.9/monitoring-metricbeat.html
+    monitoring.kibana.collection.enabled: false
+  elasticsearchRef:
+    name: dev-es1
+  podTemplate:
+    metadata:
+      labels:
+        # stack-monitoring-elastic-co/type: kb # to allow autodiscover by metricbeat
+      annotations:
+        co.elastic.logs/enabled: "true"
+    spec:
+      containers:
+      - name: kibana
+        resources:
+          requests:
+#            memory: 1Gi
+            memory: 300M
+          limits:
+            memory: 1Gi
+            cpu: 0.5
+---

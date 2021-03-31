@@ -1,0 +1,95 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  namespace: monitoring
+  name: logging-and-metrics
+spec:
+  http:
+    service:
+  #    metadata:
+  #      annotations:
+  #        metallb.universe.tf/allow-shared-ip: "float-ip"
+      spec:
+  #      type: LoadBalancer
+        type: ClusterIP
+  version: 7.10.2
+  nodeSets:
+  - name: default50g
+    count: 3
+    config:
+      node.roles: [ master, data, ingest ]
+      # For metricbeat based monitoring
+      xpack.monitoring.collection.enabled: true
+      xpack.monitoring.elasticsearch.collection.enabled: false
+    podTemplate:
+      metadata:
+        annotations:
+          # optional / recommended: disabling self-collecting logs
+          co.elastic.logs/enabled: "false"
+      spec:
+        tolerations:
+          - key: "area"
+            operator: "Equal"
+            value: "monitoring"
+            effect: "NoSchedule"
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        containers:
+        - name: elasticsearch
+          env:
+          - name: ES_JAVA_OPTS
+            value: -Xms3g -Xmx3g
+          resources:
+            requests:
+              memory: 6Gi
+              cpu: 1
+            limits:
+              memory: 6Gi
+              cpu: 2
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+#        storageClassName: default
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  namespace: monitoring
+  name: logging-and-metrics
+spec:
+  http:
+    service:
+      #metadata:
+      #  annotations:
+      #    aaaaa: "aaa"
+      spec:
+        type: LoadBalancer
+  version: 7.10.2
+  count: 1
+  elasticsearchRef:
+    name: logging-and-metrics
+  podTemplate:
+    spec:
+      tolerations:
+        - key: "area"
+          operator: "Equal"
+          value: "monitoring"
+          effect: "NoSchedule"
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: 2Gi
+            cpu: 500m
+          limits:
+            memory: 3Gi
+            cpu: 1500m

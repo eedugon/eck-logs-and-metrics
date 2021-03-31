@@ -1,0 +1,60 @@
+---
+apiVersion: beat.k8s.elastic.co/v1beta1
+kind: Beat
+metadata:
+  namespace: monitoring
+  name: metrics-all-beats
+spec:
+  type: metricbeat
+  version: 7.10.2
+  elasticsearchRef:
+    name: logging-and-metrics
+  #kibanaRef:
+  #  name: monitoring
+  config:
+    http.enabled: true
+    http.port: 5066
+    http.host: 0.0.0.0
+    monitoring.enabled: false
+    #logging.level: debug
+    tags: [ "beats-monitoring" ]
+    metricbeat:
+      autodiscover:
+        providers:
+          - type: kubernetes
+            scope: cluster
+            hints.enabled: false
+            templates:
+              - condition:
+                  and:
+                    - equals.kubernetes.labels.common_k8s_elastic_co/type: "beat"
+                    - equals.kubernetes.labels.mb_collection_enabled: "true"
+                config:
+                  - module: beat
+                    metricsets:
+                      - stats
+                      - state
+                    period: 10s
+                    hosts: "http://${data.host}:${data.ports.monitoring}"
+                    xpack.enabled: true
+    processors:
+    - add_cloud_metadata: {}
+    logging.json: true
+  deployment:
+    podTemplate:
+      metadata:
+        labels:
+          # allow metricbeat based monitoring of this beat
+          mb_collection_enabled: "true"
+      spec:
+        serviceAccountName: metricbeat
+        automountServiceAccountToken: true
+        # required to read /etc/beat.yml
+        securityContext:
+          runAsUser: 0
+        containers:
+        - name: metricbeat
+          ports:
+          - containerPort: 5066
+            name: monitoring
+            protocol: TCP
