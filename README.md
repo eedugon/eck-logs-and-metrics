@@ -1,13 +1,12 @@
 # eck-logs-and-metrics
 Monitoring Kubernetes and Elasticsearch Clusters with ECK
 
-
 Dependencies:
 
 kube-state-metrics 2.0.0-rc.0
 https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.0.0-rc.0
 
-## Installation steps
+## ECK and environment setup
 
 ### ECK Installation and environment setup
 
