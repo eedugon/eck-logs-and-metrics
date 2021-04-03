@@ -49,7 +49,7 @@ kubectl apply -f resources/02_monitoring
 ```
 
 The previous command will deploy the following:
-- RBAC roles for filebeat and metricbeat service accounts on monitoring namespace
+- Role bindings for filebeat and metricbeat service accounts on monitoring namespace
 - `logs-and-metrics` Elasticsearch Cluster
 - `logs-and-metrics` Kibana instance.
 - `filebeat`
