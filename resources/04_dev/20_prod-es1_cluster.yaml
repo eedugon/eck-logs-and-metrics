@@ -73,11 +73,11 @@ spec:
         type: LoadBalancer
   version: 7.10.2
   count: 1
-  #config:
-  #  xpack.security.encryptionKey: "fkasjdasdkfj273kjasdahsdjasdjasd7812"
   config:
-    # https://www.elastic.co/guide/en/kibana/7.9/monitoring-metricbeat.html
+    # https://www.elastic.co/guide/en/kibana/current/monitoring-metricbeat.html
     monitoring.kibana.collection.enabled: false
+    # https://www.elastic.co/guide/en/kibana/current/monitoring-settings-kb.html
+    monitoring.ui.container.elasticsearch.enabled: true
   elasticsearchRef:
     name: dev-es1
   podTemplate:

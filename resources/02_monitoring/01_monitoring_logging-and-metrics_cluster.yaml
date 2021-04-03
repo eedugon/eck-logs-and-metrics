@@ -77,6 +77,11 @@ spec:
   count: 1
   elasticsearchRef:
     name: logging-and-metrics
+  config:
+    # https://www.elastic.co/guide/en/kibana/current/monitoring-metricbeat.html
+    monitoring.kibana.collection.enabled: false
+    # https://www.elastic.co/guide/en/kibana/current/monitoring-settings-kb.html
+    monitoring.ui.container.elasticsearch.enabled: true
   podTemplate:
     spec:
       tolerations:
