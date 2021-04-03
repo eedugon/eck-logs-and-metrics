@@ -8,9 +8,9 @@ Dependencies:
 kube-state-metrics 2.0.0-rc.0
 https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.0.0-rc.0
 
-## ECK and environment setup
+## ECK Installation and environment setup
 
-### ECK Installation and environment setup
+### GKE special permissions
 
 For GKE based clusters give your google account administration privileges on the cluster:
 
@@ -20,6 +20,8 @@ cluster-admin-binding \
 --clusterrole=cluster-admin \
 --user=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
 ```
+
+### ECK, namespaces and generic roles
 
 Deploy ECK, namespaces and global roles.
 ```
@@ -35,12 +37,19 @@ And the following roles:
 - filebeat
 - metricbeat
 
-
 ### Kube-state-metrics installation
 
 Deploy Kube-state-metrics:
 ```
-kubectl apply -f 01_infra/external/kube-state-metrics-v2.0.0-rc.0/standard
+kubectl apply -f resources/01_infra/external/kube-state-metrics-v2.0.0-rc.0/standard
+```
+
+### Trial License (Optional)
+
+If you want to test Enterprise level features enable the trial at ECK level:
+
+```
+kubectl apply -f resources/01_infra/enterprise-trial
 ```
 
 ## Kubernetes Observability
@@ -57,16 +66,20 @@ The previous command will deploy the following:
 - `filebeat`
 - `metricbeat` for Kubernetes monitoring with a DaemonSet strategy.
 
-(more details?)
+(more details?) self-monitoring in that cluster?
 
 
 ## Elastic Stack Monitoring
 
-### Monitoring namespace
+### Prod namespace environment setup
 
+Before showing
+Main / data cluster in the namespace (imaginary, example)
+This should be cluster with real data.
 
-### Prod namespace
-
+```
+kubectl apply -f resources/03_prod
+```
 
 #### Option 1: Self-monitoring (basic license)
 
@@ -95,10 +108,24 @@ dedicated monitoring cluster:
 kubectl apply -f resources/03_prod/basic/dedicated-monitoring
 ```
 
-
 #### Option 3: Centralized monitoring cluster (enterprise license)
 
 
+## Uninstall
+
+Important resources to delete before destroying the Kubernetes cluster.
+
+- Persistent Volumes (created via PersistentVolumeClaims)
+- External Load Balancers
+
+```
+kubectl delete -f resources/01_infra
+# That will also delete all created namespaces: monitoring, prod and dev
+```
+
+Uninstalling ECK will also take care of destroying all owned resources (Elasticsearch clusters, Kibana instances, Beats, etc).
+
+If you delete the Kubernetes cluster (GKE) before uninstalling ECK you will end up with orphan resources in the cloud (Loab Balancers and Disks)
 
 ### WIP
 
@@ -122,6 +149,12 @@ kubectl get secret -n prod prod-es1-es-elastic-user -o=jsonpath={.data.elastic} 
 
 ```
 kubectl get secret -n prod prod-monitoring-es-elastic-user -o=jsonpath={.data.elastic} | base64 --decode
+```
+
+
+Prepare local hostnames
+```
+k get service logging-and-metrics-kb-http -n monitoring --output jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
 
