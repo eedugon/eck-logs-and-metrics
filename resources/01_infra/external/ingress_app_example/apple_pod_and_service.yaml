@@ -2,6 +2,7 @@ kind: Pod
 apiVersion: v1
 metadata:
   name: apple-app
+  namespace: default
   labels:
     app: apple
 spec:
@@ -17,6 +18,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: apple-service
+  namespace: default
 spec:
   selector:
     app: apple

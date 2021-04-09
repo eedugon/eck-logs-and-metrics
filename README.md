@@ -5,8 +5,9 @@ Monitoring Kubernetes and Elasticsearch Clusters with ECK
 
 Dependencies:
 
-kube-state-metrics 2.0.0-rc.0
-https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.0.0-rc.0
+kube-state-metrics 2.0.0-rc.0: https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.0.0-rc.0
+
+Load Balancers integration. For those systems without load balancers available consider exposing the services for external traffic in any other way (`kubectl port-forward`, ingress controller, ...).
 
 ## ECK Installation and environment setup
 
@@ -44,6 +45,19 @@ Deploy Kube-state-metrics:
 kubectl apply -f resources/01_infra/external/kube-state-metrics-v2.0.0-rc.0/standard
 ```
 
+### Ingress controller and ingress example installation (optional)
+
+[Ingress controller](https://github.com/kubernetes/ingress-nginx) is only used as an example for Filebeat and Metricbeat modules configuration.
+
+Deploy ingress-controller with:
+
+```
+kubectl apply -f resources/01_infra/external/ingress-controller-0.45.0
+kubectl apply -f resources/01_infra/external/ingress_app_example
+```
+
+
+
 ### Trial License (Optional)
 
 If you want to test Enterprise level features enable the trial at ECK level:
@@ -54,19 +68,74 @@ kubectl apply -f resources/01_infra/enterprise-trial
 
 ## Kubernetes Observability
 
+### Basic components
 
 ```
 kubectl apply -f resources/02_monitoring
 ```
 
-The previous command will deploy the following:
+The previous command will deploy the following components:
 - Role bindings for filebeat and metricbeat service accounts on monitoring namespace
 - `logs-and-metrics` Elasticsearch Cluster
 - `logs-and-metrics` Kibana instance.
-- `filebeat`
+- `filebeat` DaemonSet configured to fetch **all pods** logs.
 - `metricbeat` for Kubernetes monitoring with a DaemonSet strategy.
 
-(more details?) self-monitoring in that cluster?
+(more details?) self-monitoring in that cluster? (custom metrics example)
+
+### Obtain elastic password
+
+```
+echo $(kubectl get secret -n monitoring logging-and-metrics-es-elastic-user -o=jsonpath={.data.elastic} | base64 --decode)
+```
+
+Another quick way to obtain elastic password of all deployed clusters consists of using the provided `show_elastic_pswds.sh` script:
+
+```
+./tools/demotools/show_elastic_pswds.sh
+# elastic password of logging-and-metrics
+LT6uD5ty74349X1Rr15Zy9og
+...
+...
+```
+
+### Prepare local URLs and obtain passwords:
+
+The script `prepare_hostnames.sh` will
+
+```
+./tools/demotools/prepare_hostnames.sh mydomain
+# Adding logging-and-metrics.mydomain pointing to IP_ADDRESS
+IP_ADDRESS logging-and-metrics.mydomain
+
+# Add the previous content to your /etc/hosts (or similar) file for local names resolution
+```
+
+Note: this is not needed at all, the only intention is to simplify access to the lab. You can still use the LoadBalancer IP address directly to log into Kibana, or if LoadBalancers are not used, use whatever method you follow (`kubectl port-forward`, etc.).
+
+### Kibana custom dashboard:
+
+The provided dashboard is designed to "monitor" and overview the previous data flows (logs and metrics), not to monitor Kubernetes itself. The dashboard contains the following visualizations:
+- Number of metrics received by metricset
+- Number of logs received by pod name
+- Logs distribution per Kubernetes namespace.
+- Kubernetes events overview (probably this saved search should be in a real Kubernetes monitoring dashboard).
+
+(There's an extra `saved search` for custom logs processing example)
+
+To install the custom dashboard and associated resources:
+
+```
+curl -u elastic -k -X POST "https://logging-and-metrics.edudemo:5601/api/saved_objects/_import" -H "kbn-xsrf: true" --form 'file=@kibana/kibana-resources.ndjson'
+```
+
+(you will need elastic password, which is available in `logging-and-metrics-es-elastic-user` secret and can be retrieved with `tools/demotools/show_elastic_pswds.sh`).
+
+
+
+### Optional components / examples
+
+
 
 
 ## Elastic Stack Monitoring
