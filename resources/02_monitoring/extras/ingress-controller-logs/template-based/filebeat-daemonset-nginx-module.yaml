@@ -22,7 +22,7 @@ spec:
           # used when hostNetwork is true
           #host: ${HOSTNAME}
           scope: node
-          # Option1: with hints the configuration would be placed at pod annotations level
+          # Option1 (not used here): with hints the configuration would be placed at pod annotations level.
           hints:
             enabled: false
             default_config:
