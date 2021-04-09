@@ -81,6 +81,17 @@ The previous command will deploy the following components:
 
 (more details?) self-monitoring in that cluster? (custom metrics example)
 
+Useful commands to monitor creation of components:
+```
+kubectl -n kube-system get pod # check for k8s-metrics metricbeat pods
+kubectl -n monitoring get elasticsearch
+kubectl -n monitoring get pod # check for ES, Kibana, Filebeat and Metricbeat pods
+kubectl -n monitoring get beat
+...
+...
+(describe components, check logs, etc)
+```
+
 ### Obtain elastic password
 
 ```
@@ -124,8 +135,10 @@ The provided dashboard is designed to "monitor" and overview the previous data f
 To install the custom dashboard and associated resources:
 
 ```
-curl -u elastic -k -X POST "https://logging-and-metrics.edudemo:5601/api/saved_objects/_import" -H "kbn-xsrf: true" --form 'file=@kibana/kibana-resources.ndjson'
+curl -u elastic -k -X POST "https://logging-and-metrics.edudemo:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form 'file=@kibana/kibana-resources.ndjson'
 ```
+
+Check the output of the previous command for errors.
 
 (you will need elastic password, which is available in `logging-and-metrics-es-elastic-user` secret and can be retrieved with `tools/demotools/show_elastic_pswds.sh`).
 
