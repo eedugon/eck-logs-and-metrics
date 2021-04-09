@@ -69,7 +69,7 @@ kubectl apply -f resources/01_infra/enterprise-trial
 ### Basic components
 
 ```
-kubectl apply -f resources/02_monitoring
+kubectl apply -f resources/02_k8s_monitoring
 ```
 
 The previous command will deploy the following components:
