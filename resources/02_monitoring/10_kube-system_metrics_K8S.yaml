@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 spec:
   type: metricbeat
-  version: 7.10.2
+  version: 7.11.2
   elasticsearchRef:
     name: logging-and-metrics
     namespace: monitoring
@@ -13,10 +13,11 @@ spec:
     name: logging-and-metrics
     namespace: monitoring
   config:
-    http.enabled: true
-    http.port: 5066
-    http.host: 0.0.0.0
-    monitoring.enabled: false
+    # Disabled mb based monitoring and enabled internal collection instead because of hostNetwork
+    # http.enabled: true
+    # http.port: 5066
+    # http.host: 0.0.0.0
+    monitoring.enabled: true
     metricbeat:
       autodiscover:
         providers:
@@ -41,11 +42,15 @@ spec:
                     - state_deployment
                     - state_daemonset
                     - state_replicaset
+                    - state_statefulset
                     - state_pod
                     - state_container
                     - state_cronjob
                     - state_resourcequota
-                    - state_statefulset
+                    - state_service
+                    - state_persistentvolume
+                    - state_persistentvolumeclaim
+                    - state_storageclass
                 - module: kubernetes
                   metricsets:
                     - apiserver
@@ -103,8 +108,8 @@ spec:
     podTemplate:
       metadata:
         labels:
-          # allow metricbeat based monitoring of this beat
-          mb_collection_enabled: "true"
+          # NOT allow metricbeat based monitoring of this beat
+          mb_collection_enabled: "false"
       spec:
         # tolerate any hint (we want it to run in all nodes)
         tolerations:
@@ -161,22 +166,3 @@ spec:
         - hostPath:
             path: /proc
           name: proc
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: metricbeat
-  namespace: kube-system
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: metricbeat
-subjects:
-- kind: ServiceAccount
-  name: metricbeat
-  namespace: kube-system
-roleRef:
-  kind: ClusterRole
-  name: metricbeat
-  apiGroup: rbac.authorization.k8s.io

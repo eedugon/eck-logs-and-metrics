@@ -7,7 +7,7 @@ metadata:
   name: metrics-prod-es1-central
 spec:
   type: metricbeat
-  version: 7.10.2
+  version: 7.11.2
   elasticsearchRef:
     name: logging-and-metrics
     namespace: monitoring

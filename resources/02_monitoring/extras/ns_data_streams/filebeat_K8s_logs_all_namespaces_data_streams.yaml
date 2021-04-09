@@ -1,0 +1,104 @@
+# Filebeat example with namespace based index names + using Data Streams
+# Note: data streams related template is configured at ES side (we rely on the default logs-*-* template)
+apiVersion: beat.k8s.elastic.co/v1beta1
+kind: Beat
+metadata:
+  name: logs-k8s-namespaces-ds
+  namespace: monitoring
+spec:
+  type: filebeat
+  version: 7.11.2
+  elasticsearchRef:
+    name: logging-and-metrics
+  config:
+    #logging.level: debug
+    #logging.selectors: [ processors, publisher, publisher_pipeline_output ]
+    http.enabled: false
+    monitoring.enabled: false
+    # ILM disabled because we will rely on data streams
+    setup.ilm.enabled: false
+    setup.template.enabled: true
+    setup.template.name: "logs-fb-%{[agent.version]}"
+    setup.template.pattern: "logs-fb-%{[agent.version]}-*"
+    output:
+      elasticsearch:
+        # default ECK created users don't have enough privileges to create other index names than filebeat-*
+        username: ${ES_USERNAME}
+        password: ${ES_PASSWORD}
+        index: "logs-fb-%{[agent.version]}-%{[kubernetes.namespace]:missing}"
+        #index: "filebeat-%{[agent.version]}-%{[kubernetes.namespace]:missing}-%{+yyyy.MM.dd}"
+        #index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+    filebeat:
+      autodiscover:
+        providers:
+        - type: kubernetes
+          node: ${NODE_NAME}
+          hints:
+            enabled: true
+            default_config:
+              type: container
+              paths:
+              - /var/log/containers/*${data.kubernetes.container.id}.log
+    processors:
+    - add_cloud_metadata: {}
+    - add_host_metadata: {}
+    monitoring.enabled: false
+  daemonSet:
+    podTemplate:
+      metadata:
+        annotations:
+          # disabling self-collecing logs
+          co.elastic.logs/enabled: "false"
+      spec:
+        serviceAccountName: filebeat
+        automountServiceAccountToken: true
+        terminationGracePeriodSeconds: 30
+        dnsPolicy: ClusterFirstWithHostNet
+        hostNetwork: true # Allows to provide richer host metadata
+        containers:
+        - name: filebeat
+          # ports:
+          # - containerPort: 5067
+          #   name: monitoring
+          #   protocol: TCP
+          securityContext:
+            runAsUser: 0
+            # If using Red Hat OpenShift uncomment this:
+            #privileged: true
+          volumeMounts:
+          - name: data
+            mountPath: /usr/share/filebeat/data
+          - name: varlogcontainers
+            mountPath: /var/log/containers
+          - name: varlogpods
+            mountPath: /var/log/pods
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+          env:
+            - name: ES_USERNAME
+              value: elastic
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: elastic
+                  name: logging-and-metrics-es-elastic-user
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+        volumes:
+        - name: varlogcontainers
+          hostPath:
+            path: /var/log/containers
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        # data folder stores a registry of read status for all files, so we don't send everything again on a Filebeat pod restart
+        - name: data
+          hostPath:
+            # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
+            path: /var/lib/filebeat-data-logs-k8s-namespaces-ds
+            type: DirectoryOrCreate

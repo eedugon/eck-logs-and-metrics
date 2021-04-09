@@ -1,20 +1,14 @@
 # Example of Filebeat manifest to deliver logs from ES clusters of a namespace using hints based autodiscover.
-# hostNetwork disabled
-# Pending: move HINTS to static templates.
-# hostNetwoek
-
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
-  name: logs-prod-es1-self
-  namespace: prod
+  name: logs-ingress-controller
+  namespace: monitoring
 spec:
   type: filebeat
   version: 7.11.2
   elasticsearchRef:
-    name: prod-es1
-  #kibanaRef:
-  #  name: kibana-monitoring
+    name: logging-and-metrics
   config:
     http.enabled: true
     http.port: 5066
@@ -28,59 +22,42 @@ spec:
           # used when hostNetwork is true
           #host: ${HOSTNAME}
           scope: node
-          namespace: prod
-          # Option1: with hints we could take any ES cluster from the namespace
+          # Option1: with hints the configuration would be placed at pod annotations level
           hints:
             enabled: false
             default_config:
               enabled: false
-              type: container
-              paths:
-              - /var/log/containers/*${data.kubernetes.container.id}.log
-          # Option2: With static templates we can point exactly to the cluster we want (not scalable)
+          # Option2: With static templates we can configure filebeat inputs based on pods metadata
           templates:
             - condition:
-                equals:
-                  kubernetes.labels.kibana_k8s_elastic_co/name: "prod-es1"
+                and:
+                  - equals.kubernetes.labels.app_kubernetes_io/name: "ingress-nginx"
+                  - equals.kubernetes.labels.app_kubernetes_io/component: "controller"
               config:
-                - module: kibana
-                  log:
-                    input:
-                      type: container
-                      paths:
-                        - /var/log/containers/*${data.kubernetes.container.id}.log
-                  # audit:
-                  #   input:
-                  #     type: container
-                  #     paths:
-                  #       - /var/log/containers/*${data.kubernetes.container.id}.log
-            - condition:
-                equals:
-                  kubernetes.labels.elasticsearch_k8s_elastic_co/cluster-name: "prod-es1"
-              config:
-                - module: elasticsearch
-                  audit:
-                    input:
-                      type: container
-                      paths:
-                        - /var/log/containers/*${data.kubernetes.container.id}.log
-                  deprecation:
-                    input:
-                      type: container
-                      paths:
-                        - /var/log/containers/*${data.kubernetes.container.id}.log
-                  gc:
+                - module: nginx
+                  # access fileset is not valid for ingress-controller (it's for standard nginx)
+                  access:
                     enabled: false
-                  server:
+                  # The error fileset works partially with ingress-controller (works better with standard nginx)
+                  error:
                     input:
                       type: container
                       paths:
                         - /var/log/containers/*${data.kubernetes.container.id}.log
-                  slowlog:
+                      stream: stderr
+                      processors:
+                        - add_tags:
+                            tags: [nginx-processing-template]
+                  # This is the "access" fileset for ingress controller
+                  ingress_controller:
                     input:
                       type: container
                       paths:
                         - /var/log/containers/*${data.kubernetes.container.id}.log
+                      stream: stdout
+                      processors:
+                        - add_tags:
+                            tags: [nginx-processing-template]
     processors:
     - add_cloud_metadata: {}
     - add_host_metadata: {}
@@ -133,5 +110,5 @@ spec:
         - name: data
           hostPath:
             # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
-            path: /var/lib/filebeat-data-prod-self
+            path: /var/lib/filebeat-data-ingress-controller
             type: DirectoryOrCreate

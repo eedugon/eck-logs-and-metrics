@@ -8,16 +8,17 @@ metadata:
   namespace: monitoring
 spec:
   type: filebeat
-  version: 7.10.2
+  version: 7.11.2
   elasticsearchRef:
     name: logging-and-metrics
   kibanaRef:
     name: logging-and-metrics
   config:
-    http.enabled: true
-    http.port: 5067
-    http.host: 0.0.0.0
-    monitoring.enabled: false
+    # Disabled mb based monitoring and enabled internal collection instead because of hostNetwork
+    # http.enabled: true
+    # http.port: 5067
+    # http.host: 0.0.0.0
+    monitoring.enabled: true
     filebeat:
       autodiscover:
         providers:
@@ -36,6 +37,9 @@ spec:
   daemonSet:
     podTemplate:
       metadata:
+        labels:
+          # NOT allow metricbeat based monitoring of this beat
+          mb_collection_enabled: "false"
         annotations:
           # disabling self-collecing logs
           co.elastic.logs/enabled: "false"
@@ -60,7 +64,7 @@ spec:
             name: monitoring
             protocol: TCP
           securityContext:
-            runAsUser: 0
+            runAsUser: 0 # needed for hostPath data volume and /etc/beat.yml mount by ECK
             # If using Red Hat OpenShift uncomment this:
             #privileged: true
           volumeMounts:

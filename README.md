@@ -111,6 +111,10 @@ kubectl apply -f resources/03_prod/basic/dedicated-monitoring
 #### Option 3: Centralized monitoring cluster (enterprise license)
 
 
+```
+kubectl apply -f resources/03_prod/enterprise/central-monitoring
+```
+
 ## Uninstall
 
 Important resources to delete before destroying the Kubernetes cluster.
@@ -150,7 +154,6 @@ kubectl get secret -n prod prod-es1-es-elastic-user -o=jsonpath={.data.elastic} 
 ```
 kubectl get secret -n prod prod-monitoring-es-elastic-user -o=jsonpath={.data.elastic} | base64 --decode
 ```
-
 
 Prepare local hostnames
 ```

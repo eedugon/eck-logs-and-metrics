@@ -7,12 +7,13 @@ metadata:
   name: metrics-monitoring-es
 spec:
   type: metricbeat
-  version: 7.10.2
+  version: 7.11.2
   elasticsearchRef:
     name: logging-and-metrics
   #kibanaRef:
   #  name: monitoring
   config:
+    # Metricbeat based monitoring
     http.enabled: true
     http.port: 5066
     http.host: 0.0.0.0
