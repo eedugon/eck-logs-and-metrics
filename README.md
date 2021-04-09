@@ -24,12 +24,12 @@ cluster-admin-binding \
 
 ### ECK, namespaces and generic roles
 
-Deploy ECK, namespaces and global roles.
+[Deploy ECK](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-deploy-eck.html), namespaces and global roles.
 ```
 kubectl apply -f resources/01_infra
 ```
 
-The previous command will create the following namespaces:
+The previous command will install ECK with the default official manifest (in `elastic-system` namespace) and will also create the following namespaces:
 - monitoring
 - dev
 - prod
@@ -40,7 +40,7 @@ And the following roles:
 
 ### Kube-state-metrics installation
 
-Deploy Kube-state-metrics:
+Deploy [Kube-state-metrics](https://github.com/kubernetes/kube-state-metrics):
 ```
 kubectl apply -f resources/01_infra/external/kube-state-metrics-v2.0.0-rc.0/standard
 ```
@@ -55,8 +55,6 @@ Deploy ingress-controller with:
 kubectl apply -f resources/01_infra/external/ingress-controller-0.45.0
 kubectl apply -f resources/01_infra/external/ingress_app_example
 ```
-
-
 
 ### Trial License (Optional)
 
