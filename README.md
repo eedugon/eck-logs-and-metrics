@@ -161,35 +161,46 @@ This should be cluster with real data.
 kubectl apply -f resources/03_prod
 ```
 
+Obtain elastic password and prepare static host resolution with the previous tools:
+
+```
+./tools/demotools/prepare_hostnames.sh mydomain
+./tools/demotools/show_elastic_pswds.sh
+```
+
+Kibana access example:
+https://prod-es1.edudemo:5601/
+
+
+
+### Monitoring options
+
+- Self-monitoring (indexing metrics and logs in the same Elasticsearch cluster) (**not recommended**)
+- Dedicated monitoring cluster (shipping metrics and logs to an external cluster)
+- Centralized monitoring cluster (using the previously created logging-and-metrics cluster)
+
 #### Option 1: Self-monitoring (basic license)
 
 ```
-kubectl apply -f resources/03_prod/basic/self-monitoring
+kubectl apply -f resources/03_prod/stack_monitoring/basic/self-monitoring
 ```
 
-self monitoring --> shipping logs not recommended.
-
-shipping filebeat logs to same cluster not recommended.
-
-
-self monitoring:
-  - metrics
-  - logs
-
-
-dedicated monitoring cluster:
- - metrics
- - logs
+* Note: Self indexing elasticsearch logs NOT recommended
 
 
 #### Option 2: Dedicated monitoring cluster (basic license, only allows 1 monitored cluster)
 
+Monitoring cluster name: `prod-monitoring`
+
 ```
-kubectl apply -f resources/03_prod/basic/dedicated-monitoring
+kubectl apply -f resources/03_prod/stack_monitoring/basic/dedicated-monitoring
 ```
+
+Kubana access: https://prod-monitoring.edudemo:5601/
 
 #### Option 3: Centralized monitoring cluster (enterprise license)
 
+Note: Logs not included in this manifests as they will be shipped by the main filebeat deployed for Kubernetes monitoring.
 
 ```
 kubectl apply -f resources/03_prod/enterprise/central-monitoring
