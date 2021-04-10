@@ -33,7 +33,6 @@ spec:
     processors:
     - add_cloud_metadata: {}
     - add_host_metadata: {}
-    monitoring.enabled: false
   daemonSet:
     podTemplate:
       metadata:
