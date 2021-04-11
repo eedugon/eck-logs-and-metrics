@@ -1,5 +1,6 @@
 # Filebeat example with namespace based index names + using Data Streams
-# Note: data streams related template is configured at ES side (we rely on the default logs-*-* template)
+# Note: data streams related template nneds to be configured at ES side (we rely on the default logs-*-* template)
+# Valid for Elasticsearch 7.11+
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
@@ -22,10 +23,11 @@ spec:
     setup.template.pattern: "logs-fb-%{[agent.version]}-*"
     output:
       elasticsearch:
-        # default ECK created users don't have enough privileges to create other index names than filebeat-*
+        # default ECK created users don't have enough privileges to write or create other index names than filebeat-*
         username: ${ES_USERNAME}
         password: ${ES_PASSWORD}
         index: "logs-fb-%{[agent.version]}-%{[kubernetes.namespace]:missing}"
+        # daily indices option (will work with default user and no ILM will be used)
         #index: "filebeat-%{[agent.version]}-%{[kubernetes.namespace]:missing}-%{+yyyy.MM.dd}"
         #index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
     filebeat:
