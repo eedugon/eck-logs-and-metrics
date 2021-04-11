@@ -13,7 +13,7 @@ spec:
     name: logging-and-metrics
     namespace: monitoring
   config:
-    # Disabled mb based monitoring and enabled internal collection instead because of hostNetwork
+    # Disabled mb based monitoring and enabled internal collection instead (because of hostNetwork)
     # http.enabled: true
     # http.port: 5066
     # http.host: 0.0.0.0
@@ -26,6 +26,8 @@ spec:
           hints:
             default_config: {}
             enabled: true # double check if this is wanted
+        # I like the following section (cluster level metrics) more in a Deployment than in a daemonSet with unique = true
+        # But anyway this shows the new __unique__ functionality of autodiscover in metricbeat
         - type: kubernetes
           scope: cluster
           node: ${NODE_NAME}
@@ -63,6 +65,7 @@ spec:
                 - module: kubernetes
                   metricsets:
                     - event
+      # HOST level metrics / modules
       modules:
       - module: system
         period: 10s
@@ -108,10 +111,10 @@ spec:
     podTemplate:
       metadata:
         labels:
-          # NOT allow metricbeat based monitoring of this beat
+          # label to allow / avoid metricbeat based monitoring of this beat
           mb_collection_enabled: "false"
       spec:
-        # tolerate any hint (we want it to run in all nodes)
+        # tolerate any hint (we want it to run in all nodes). Irrelevant if k8s taints not used
         tolerations:
           - effect: NoExecute
             operator: Exists
@@ -121,10 +124,10 @@ spec:
             operator: Exists
         # resources:
         #   requests:
-        #     memory: 6Gi
-        #     cpu: 1
+        #     memory: 1Gi
+        #     cpu: 300m
         #   limits:
-        #     memory: 6Gi
+        #     memory: 4Gi
         #     cpu: 2
         serviceAccountName: metricbeat
         automountServiceAccountToken: true # some older Beat versions are depending on this settings presence in k8s context
@@ -152,7 +155,7 @@ spec:
               fieldRef:
                 fieldPath: spec.nodeName
         dnsPolicy: ClusterFirstWithHostNet
-        hostNetwork: true # Allows to provide richer host metadata
+        hostNetwork: true
         securityContext:
           runAsUser: 0
         terminationGracePeriodSeconds: 30
