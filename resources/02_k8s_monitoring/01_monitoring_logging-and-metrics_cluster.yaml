@@ -27,6 +27,7 @@ spec:
           # optional / recommended: disabling self-collecting logs
           co.elastic.logs/enabled: "false"
       spec:
+        # tolerations (irrelevant if tains are not configured in k8s nodes)
         tolerations:
           - key: "area"
             operator: "Equal"
