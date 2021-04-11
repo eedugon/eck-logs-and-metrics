@@ -91,6 +91,12 @@ spec:
         labels:
           # allow metricbeat based monitoring of this beat
           mb_collection_enabled: "true"
+        annotations:
+          co.elastic.logs/processors.1.decode_json_fields.fields: "message"
+          co.elastic.logs/processors.1.decode_json_fields.target: ""
+          co.elastic.logs/processors.1.decode_json_fields.overwrite_keys: "true"
+          co.elastic.logs/processors.1.decode_json_fields.add_error_key: "true"
+          #co.elastic.logs/processors.1.decode_json_fields.max_depth: "1"
       spec:
         serviceAccountName: filebeat
         automountServiceAccountToken: true
