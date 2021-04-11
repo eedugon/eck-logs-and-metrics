@@ -2,9 +2,11 @@ _(Work in progres...)_
 
 # eck-logs-and-metrics
 
-The purpose of this project is to extend the default manifests proposed in the official docs for Kubernetes Observability (mainly running Filebeat and Metricbeat on Kubernetes), offering more advanced examples and use cases.
+The purpose of this project is to extend the default manifests proposed in the official __Elastic docs__ for Kubernetes Observability (mainly running [Filebeat](https://www.elastic.co/guide/en/beats/filebeat/current/running-on-kubernetes.html) and [Metricbeat](https://www.elastic.co/guide/en/beats/metricbeat/current/running-on-kubernetes.html) on Kubernetes), offering more advanced examples and use cases.
 
 All resources will be deployed by the Elastic Operator (ECK). If ECK is not used in your environment you could still adapt the part of the manifests to your needs.
+
+You can also follow this project as a tutorial to introduce yourself into Kubernetes monitoring with the Elastic Stack.
 
 Topics covered and provided examples:
 
