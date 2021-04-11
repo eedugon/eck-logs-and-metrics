@@ -1,4 +1,5 @@
-# description.....
+# Example of FB daemonset intended to retrieve logs of some specific pods.
+# Autodiscover with config based templates used.
 # Pipeline associated:
 # PUT _ingest/pipeline/custom-text-example
 # {

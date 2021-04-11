@@ -6,7 +6,12 @@ metadata:
   labels:
     purpose: demonstrate-command-json
   # annotations:
-  #   co.elastic.logs/enabled: false
+      # co.elastic.logs/enabled: false # uncomment that if you don't want hints based autodiscover to fetch these logs
+      # For hints based autodiscover solution
+      # co.elastic.logs/processors.1.decode_json_fields.fields: ["message"]
+      # co.elastic.logs/processors.1.decode_json_fields.target: ""
+      # co.elastic.logs/processors.1.decode_json_fields.overwrite_keys: "true"
+      # co.elastic.logs/processors.1.decode_json_fields.add_error_key: "true"
 spec:
   containers:
   - name: command-demo-container
@@ -29,6 +34,8 @@ metadata:
     purpose: demonstrate-command-text
   # annotations:
   #   co.elastic.logs/enabled: false
+      # For hints based autodiscover solution
+      # co.elastic.logs/pipeline: ["custom-text-example"]
 spec:
   containers:
   - name: command-demo-container
