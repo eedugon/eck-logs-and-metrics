@@ -1,13 +1,41 @@
-(Work in progres...)
+_(Work in progres...)_
 
 # eck-logs-and-metrics
+
+The purpose of this project is to extend the default manifests proposed in the official docs for Kubernetes Observability (mainly running Filebeat and Metricbeat on Kubernetes), offering more advanced examples and use cases.
+
+All resources will be deployed by the Elastic Operator (ECK). If ECK is not used in your environment you could still adapt the part of the manifests to your needs.
+
+Topics covered and provided examples:
+
+- Kubernetes Observability:
+  - Metrics (default proposal)
+  - Logs (default proposal)
+  - Custom logs (structured text and json examples)
+  - Namespace based indices (managed internally by Elasticsearch _data streams_)
+  - Using modules (example for ingress controller available)
+
+- Elastic Stack monitoring on Kubernetes:
+  - Self-monitoring
+  - Dedicated monitoring cluster
+  - Centralized monitoring (requires an enterprise license)
+
+All the examples
+
 Monitoring Kubernetes and Elasticsearch Clusters with ECK
 
-Dependencies:
+__Dependencies:__
 
-kube-state-metrics 2.0.0-rc.0: https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.0.0-rc.0
+- kube-state-metrics 2.0.0-rc.0: https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.0.0-rc.0
 
-Load Balancers integration. For those systems without load balancers available consider exposing the services for external traffic in any other way (`kubectl port-forward`, ingress controller, ...).
+- Load Balancers integration: For those systems without load balancers available consider exposing the services for external traffic in any other way (`kubectl port-forward`, ingress controller, ...). We expose Kibana and ingress-controller services as LoadBalancers in the proposed manifests.
+
+
+__Background and concepts__
+
+In order to understand better the provided resources and examples, you should be familiar with:
+- Beats Autodiscover (Hints and conditional templates based).
+- Elasticsearch and Kibana
 
 ## ECK Installation and environment setup
 
