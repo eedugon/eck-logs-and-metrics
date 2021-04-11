@@ -6,9 +6,6 @@ metadata:
 spec:
   http:
     service:
-  #    metadata:
-  #      annotations:
-  #        metallb.universe.tf/allow-shared-ip: "float-ip"
       spec:
   #      type: LoadBalancer
         type: ClusterIP
@@ -79,12 +76,15 @@ spec:
   elasticsearchRef:
     name: logging-and-metrics
   config:
+    # For metricbeat based monitoring...
     # https://www.elastic.co/guide/en/kibana/current/monitoring-metricbeat.html
     monitoring.kibana.collection.enabled: false
+    # Recommended monitoring setting when ES runs in containers...
     # https://www.elastic.co/guide/en/kibana/current/monitoring-settings-kb.html
     monitoring.ui.container.elasticsearch.enabled: true
   podTemplate:
     spec:
+      # tolerations (irrelevant if tains are not configured in k8s nodes)
       tolerations:
         - key: "area"
           operator: "Equal"
