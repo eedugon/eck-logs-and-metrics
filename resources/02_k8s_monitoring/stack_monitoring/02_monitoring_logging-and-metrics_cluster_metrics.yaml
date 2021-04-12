@@ -1,5 +1,5 @@
 ---
-# eedugon: pending to fix users and passwords to monitor multiple clusters
+# Metricbeat example for ES & Kibana monitoring of a single cluster
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
@@ -10,8 +10,6 @@ spec:
   version: 7.11.2
   elasticsearchRef:
     name: logging-and-metrics
-  #kibanaRef:
-  #  name: monitoring
   config:
     # Metricbeat based monitoring
     http.enabled: true
