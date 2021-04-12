@@ -22,7 +22,8 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
               - /var/log/containers/*${data.kubernetes.container.id}.log
 ```
 
-- HTTP based monitoring disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level.
+- Monitoring enabled with internal collection, and HTTP based monitoring disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level:
+
 - Logs collection of this pod disabled with the pod level annotation `co.elastic.logs/enabled: "false"`.
 
 ### Extra Considerations:
@@ -33,16 +34,16 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
 co.elastic.logs/enabled: "false"
 ```
 
-- If you don't want all pods logs to be collected as default you can add `hints.default_config.enabled: false` and then only pods with annotation `co.elastic.logs/enabled: "true"` will be considered.
+- If you don't want all pods logs to be collected by default you can add `hints.default_config.enabled: false` and then only the pods with annotation `co.elastic.logs/enabled: "true"` will be retrieved.
 
 More details at:
-- Filebeat autodiscover
-- Filebeat hints based autodiscover.
+- [Filebeat autodiscover](https://www.elastic.co/guide/en/beats/filebeat/current/configuration-autodiscover.html)
+- [Filebeat hints based autodiscover](https://www.elastic.co/guide/en/beats/filebeat/current/configuration-autodiscover-hints.html)
 
 ### Customizations
 
-As this DaemonSet is using `hints based autodiscover`, in case of needing extra input configuration there are 2 choices:
-- Add the relevant annotations to the pods.
-- Disable the logs fetching with `co.elastic.logs/enabled: "false"` annotation and add conditional based templates to the filebeat autodiscover configuration.
+As this DaemonSet is using `hints based autodiscover`, in case of needing extra input configuration for specific pods there are 2 choices:
+- Add the relevant annotations to the pods, so hints based autodiscover will apply the changes.
+- For those pods, disable the logs fetching with `co.elastic.logs/enabled: "false"` annotation and add conditional based templates to the filebeat autodiscover configuration.
 
-More examples of this available at [custom_log_formats](custom_log_formats.md) document and examples.
+More examples of this type of customizations available at [custom_log_formats](custom_log_formats.md) document and examples.
