@@ -6,11 +6,11 @@ Beats monitoring (metrics) can be achieved via 2 different methods:
 - [Internal monitoring collection](https://www.elastic.co/guide/en/beats/filebeat/current/monitoring-internal-collection.html): Monitoring will be done directly by the running beat, sending its own metrics to an Elasticsearch cluster.
 - [Metricbeat based monitoring](https://www.elastic.co/guide/en/beats/filebeat/current/monitoring-metricbeat-collection.html): An external metricbeat will connect to the beat via HTTP to retrieve metrics and ship them to an Elasticsearch cluster.
 
-This document is focused on the `Metricbeat based monitoring` and explains the manifest available [here](/resources/02_k8s_monitoring/stack_monitoring/03_monitoring_all-beats.yaml), which is intended to deploy metricbeat in order to monitor itself + any other beat pod configured with a given label.
+This document is focused on __Metricbeat based monitoring__ and explains the manifest available [here](/resources/02_k8s_monitoring/stack_monitoring/03_monitoring_all-beats.yaml), which deploys Metricbeat as a Deployment in order to perform monitoring of itself + all other beats.
 
 ### Beats monitoring with autodiscovery and using metricbeat collection
 
-The beat to monitor needs to achieve the following goals:
+The __beat to monitor__ needs to achieve the following goals:
 
 - Enable http and disable internal monitoring
 ```
@@ -41,7 +41,7 @@ The beat to monitor needs to achieve the following goals:
           mb_collection_enabled: "true"
 ```
 
-The Metricbeat instance in charge of monitoring needs to:
+The __Metricbeat instance in charge of monitoring__ needs to:
 
 - Configure `beat module` with a conditional autodiscover template:
 
@@ -66,13 +66,11 @@ The Metricbeat instance in charge of monitoring needs to:
                     xpack.enabled: true
 ```
 
-## Logs
+## Logs (work in progress...)
 
 For beats logging there isn't any predefined Beat module in Filebeat, so the logs must be analyzed and considered like any other pod, however take in mind the following recommendations:
 
 - Do not ship filebeat logs to the same Elasticsearch cluster where the main inputs are sending the data (the same would apply to other beats).
-
-
 
 ### logging
 

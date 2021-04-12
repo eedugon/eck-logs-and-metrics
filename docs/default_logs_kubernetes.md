@@ -4,8 +4,12 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
 
 ### Manifest Highlights:
 
-- Filebeat runs as a DaemonSet in `namespace` monitoring
-- `HostNetwork: true`
+- Filebeat runs as a DaemonSet in the namespace `monitoring` (feel free to change that).
+
+- `HostNetwork: true`: Provides better metadata (not really needed).
+
+- Runs in privileged mode (`runAsUser: 0`): Needed for mounting host directories with logs and also for hostPath volume (persistent) for data path.
+
 - Hints based autodiscover configured to fetch logs from all pods by default:
 
 ```

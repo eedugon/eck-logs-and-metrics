@@ -6,6 +6,10 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
 
 - Metricbeat runs as a DaemonSet
 
+- `HostNetwork: true`: needed for Network interfaces related metrics.
+
+- Runs in privileged mode (`runAsUser: 0`): Needed for system metrics.
+
 - Two types of metrics
   - __Host level metrics__: These metrics needs to be retrieved `per node`, which is the main reason to run this as a DaemonSet.
     - Common metricsets from `system module`.
@@ -106,8 +110,6 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
             default_config: {}
             enabled: true # double check if this is wanted
 ```
-
-- `HostNetwork: true`: needed for Network interfaces related metrics.
 
 - Monitoring (of the beat itself) enabled with [internal collection](https://www.elastic.co/guide/en/beats/metricbeat/current/monitoring-internal-collection.html), and [HTTP/metricbeat based monitoring](https://www.elastic.co/guide/en/beats/metricbeat/current/monitoring-metricbeat-collection.html) disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level:
 
