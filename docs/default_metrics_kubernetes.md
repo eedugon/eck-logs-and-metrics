@@ -1,14 +1,15 @@
-(pending review...)
+# Default Kubernetes Metrics with Metricbeat
 
-# Default logging with Filebeat and autodiscover
-
-This document explains the current manifest available [here](/resources/02_k8s_monitoring/10_kube-system_metrics_K8S.yaml).
+This document explains the manifest available [here](/resources/02_k8s_monitoring/10_kube-system_metrics_K8S.yaml), which is intended to deploy Metricbeat on Kubernetes to perform monitoring of `Kubernetes nodes` and `Kubernetes cluster` state.
 
 ### Manifest Highlights:
 
 - Metricbeat runs as a DaemonSet
+
 - Two types of metrics
-  - Host level metrics: These metrics needs to be fetched by all nodes, which is the main reason to run this as a DaemonSet.
+  - __Host level metrics__: These metrics needs to be retrieved `per node`, which is the main reason to run this as a DaemonSet.
+    - Common metricsets from `system module`.
+    - Kubelet related mericsets from `kubernetes module`.
 
 ```
       - module: system
@@ -50,16 +51,9 @@ This document explains the current manifest available [here](/resources/02_k8s_m
         - volume
 ```
 
-  - Cluster level metrics: These metrics needs to be feched just once, not per node. Originally these were proposed in a Deployment and not in a DaemonSet, but we have recently included support for `unique` inputs. I personally like more the `DaemonSet + Deployment` original proposal because it allows better dimensioning of the resources (CPU and memory request / limits). With this approach, one pod of the DaemonSet will always show more load than the others.
+  - __Cluster level metrics__: These metrics needs to be fetched just once, not per node. Originally these were proposed in a Deployment and not in a DaemonSet, but [Metricbeat autodiscover](https://www.elastic.co/guide/en/beats/metricbeat/current/configuration-autodiscover.html) has recently delivered the `unique` functionality, which allows to define an `autodiscover provider` that will run only once, acquiring a leader lease. I personally like more the `DaemonSet + Deployment` original proposal because it allows better dimensioning of the resources (CPU and memory request / limits). With this approach, one pod of the DaemonSet will always show significant more load than the others.
 
 ```
-      autodiscover:
-        providers:
-        - type: kubernetes
-          node: ${NODE_NAME}
-          hints:
-            default_config: {}
-            enabled: true # double check if this is wanted
         # I like the following section (cluster level metrics) more in a Deployment than in a daemonSet with unique = true
         # But anyway this shows the new __unique__ functionality of autodiscover in metricbeat
         - type: kubernetes
@@ -101,13 +95,33 @@ This document explains the current manifest available [here](/resources/02_k8s_m
                     - event
 ```
 
-- `HostNetwork: true`: needed for Network related metrics.
-- HTTP based monitoring disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level.
-- Logs collection of this pod disabled with the pod level annotation `co.elastic.logs/enabled: "false"`.
+- An extra __autodiscover provider with Hints enabled__. This would allow metrics of pods with `co.elastic.metrics/*` annotations to be retrieved by this DaemonSet. Double check if that's what you want in your installation. I would prefer to keep that in a separate Deployment.
+
+```
+      autodiscover:
+        providers:
+        - type: kubernetes
+          node: ${NODE_NAME}
+          hints:
+            default_config: {}
+            enabled: true # double check if this is wanted
+```
+
+- `HostNetwork: true`: needed for Network interfaces related metrics.
+
+- Monitoring enabled with internal collection, and HTTP based monitoring disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level:
+
+```
+    # Disabled mb based monitoring and enabled internal collection instead (because of hostNetwork)
+    # http.enabled: true # defaults to false
+    # http.port: 5066
+    # http.host: 0.0.0.0
+    monitoring.enabled: true
+```
 
 More details at:
 
-- Metricbeat autodiscover
-- Metricbeat hints based autodiscover.
+- [Metricbeat autodiscover](https://www.elastic.co/guide/en/beats/metricbeat/current/configuration-autodiscover.html)
+- [Metricbeat hints based autodiscover](https://www.elastic.co/guide/en/beats/metricbeat/current/configuration-autodiscover-hints.html)
 
 (TBD)- For custom metrics take a look at [custom_metrics](custom_metrics.md) document and examples.

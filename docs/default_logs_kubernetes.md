@@ -1,8 +1,6 @@
-(pending review...)
+# Default Kubernetes logs collection with Filebeat and autodiscover
 
-# Default logging with Filebeat and autodiscover
-
-This document explains the current manifest available [here](/resources/02_k8s_monitoring/11_filebeat_logs_all_autodiscover.yaml).
+This document explains the manifest available [here](/resources/02_k8s_monitoring/11_filebeat_logs_all_autodiscover.yaml), which is intended to collect all Kubernetes pods logs in a flexible way, allowing the user to disable certain pods logs, adding customizations, etc.
 
 ### Manifest Highlights:
 
@@ -41,4 +39,10 @@ More details at:
 - Filebeat autodiscover
 - Filebeat hints based autodiscover.
 
-- For custom logging formats take a look at [custom_log_formats](custom_log_formats.md) document and examples.
+### Customizations
+
+As this DaemonSet is using `hints based autodiscover`, in case of needing extra input configuration there are 2 choices:
+- Add the relevant annotations to the pods.
+- Disable the logs fetching with `co.elastic.logs/enabled: "false"` annotation and add conditional based templates to the filebeat autodiscover configuration.
+
+More examples of this available at [custom_log_formats](custom_log_formats.md) document and examples.
