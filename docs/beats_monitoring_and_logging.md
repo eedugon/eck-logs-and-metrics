@@ -1,26 +1,56 @@
-(WIP...)
 # Monitoring Beats with Metricbeat and Filebeat on Kubernetes
 
 ## Metrics
 
 Beats monitoring (metrics) can be achieved via 2 different methods:
-- [Internal monitoring](): Monitoring will be done directly by the running beat, sending its own metricst to an Elasticsearch cluster.
-- [Metricbeat based monitoring](): An external metricbeat will connect to the beat via HTTP to retrieve metrics and ship them to an Elasticsearch cluster.
+- [Internal monitoring collection](https://www.elastic.co/guide/en/beats/filebeat/current/monitoring-internal-collection.html): Monitoring will be done directly by the running beat, sending its own metrics to an Elasticsearch cluster.
+- [Metricbeat based monitoring](https://www.elastic.co/guide/en/beats/filebeat/current/monitoring-metricbeat-collection.html): An external metricbeat will connect to the beat via HTTP to retrieve metrics and ship them to an Elasticsearch cluster.
 
-description here...
+This document is focused on the `Metricbeat based monitoring` and explains the manifest available [here](/resources/02_k8s_monitoring/stack_monitoring/03_monitoring_all-beats.yaml), which is intended to deploy metricbeat in order to monitor itself + any other beat pod configured with a given label.
 
-### beats monitoring with autodiscovery and using metricbeat collection
+### Beats monitoring with autodiscovery and using metricbeat collection
 
-for monitored beats:
-- enable http
-- publish the port
-- add a label (optional)
+The beat to monitor needs to achieve the following goals:
 
-in monitoring metricbeat:
-- same as before +
-- configure the module based on conditions:
+- Enable http and disable internal monitoring
+```
+    # Metricbeat based monitoring
+    http.enabled: true
+    http.port: 5066
+    http.host: 0.0.0.0
+    monitoring.enabled: false
+```
+
+- Publish the port at container level
+```
+          # port published with name "monitoring" at container level (it will be used in metricbeat later on)
+          ports:
+          - containerPort: 5066
+            name: monitoring
+            protocol: TCP
 
 ```
+
+- Add a label (optional) that will be used by the monitoring agent (Metricbeat)
+```
+    # Label added to be used at a later stage with metricbeat autodiscover)
+    podTemplate:
+      metadata:
+        labels:
+          # allow metricbeat based monitoring of this beat
+          mb_collection_enabled: "true"
+```
+
+The Metricbeat instance in charge of monitoring needs to:
+
+- Configure `beat module` with a conditional autodiscover template:
+
+```
+      autodiscover:
+        providers:
+          - type: kubernetes
+            scope: cluster
+            hints.enabled: false
             templates:
               - condition:
                   and:
@@ -35,8 +65,6 @@ in monitoring metricbeat:
                     hosts: "http://${data.host}:${data.ports.monitoring}"
                     xpack.enabled: true
 ```
-
-Complete example of monitoring beat that will monitor itself + any other beat with the label:
 
 ## Logs
 
