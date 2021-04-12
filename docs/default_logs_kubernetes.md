@@ -22,7 +22,7 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
               - /var/log/containers/*${data.kubernetes.container.id}.log
 ```
 
-- Monitoring enabled with internal collection, and HTTP based monitoring disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level:
+- Monitoring (of the beat itself) enabled with [internal collection](https://www.elastic.co/guide/en/beats/filebeat/current/monitoring-internal-collection.html), and [HTTP/metricbeat based monitoring](https://www.elastic.co/guide/en/beats/filebeat/current/monitoring-metricbeat-collection.html) disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level:
 
 - Logs collection of this pod disabled with the pod level annotation `co.elastic.logs/enabled: "false"`.
 

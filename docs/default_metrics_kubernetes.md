@@ -109,7 +109,7 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
 
 - `HostNetwork: true`: needed for Network interfaces related metrics.
 
-- Monitoring enabled with internal collection, and HTTP based monitoring disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level:
+- Monitoring (of the beat itself) enabled with [internal collection](https://www.elastic.co/guide/en/beats/metricbeat/current/monitoring-internal-collection.html), and [HTTP/metricbeat based monitoring](https://www.elastic.co/guide/en/beats/metricbeat/current/monitoring-metricbeat-collection.html) disabled (due to the usage of `hostNetwork`) to avoid listening on a port at host level:
 
 ```
     # Disabled mb based monitoring and enabled internal collection instead (because of hostNetwork)
