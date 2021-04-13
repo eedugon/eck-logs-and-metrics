@@ -92,7 +92,7 @@ Example of configuration to add a custom pipeline in the input.
 2021-04-13T09:54:46Z|field1value|field2value
 ```
 
-- Logs parsing solution:
+- Logs parsing solution: [manifest](/resources/02_k8s_monitoring/extras/custom-formats/filebeat-daemonset-customformat.yaml)
   - For the `json` pod (which is labeled with `purpose: demonstrate-command-json`) we apply the following template with autodiscover:
 ```
                 - type: container
