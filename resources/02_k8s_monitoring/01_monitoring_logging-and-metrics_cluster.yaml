@@ -16,6 +16,7 @@ spec:
     config:
       node.roles: [ master, data, ingest ]
       # For metricbeat based monitoring
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-metricbeat.html
       xpack.monitoring.collection.enabled: true
       xpack.monitoring.elasticsearch.collection.enabled: false
     podTemplate:

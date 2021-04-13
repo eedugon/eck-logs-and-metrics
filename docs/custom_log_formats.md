@@ -1,5 +1,3 @@
-(WIP...)
-
 # Custom logging formats
 
 This document shows and explain some use cases to customize pods logs processing with Filebeat on Kubernetes.
@@ -68,6 +66,54 @@ Example of configuration to add a custom pipeline in the input.
 
 ```
             - condition:
+                equals:
+                  kubernetes.labels.purpose: "demonstrate-command-text"
+              config:
+                - type: container
+                  paths:
+                    - /var/log/containers/*${data.kubernetes.container.id}.log
+                  tags: ["customformat"]
+                  pipeline: custom-text-example
+```
+
+## Practical example
+
+[This manifest](/resources/02_k8s_monitoring/extras/custom-formats/01_pods.yaml) defines 2 pods that write logs every 10 seconds with the following formats:
+
+- `command-demo-json` pod logs:
+```
+{"stream":"custom_stream_name","customfield1":"field-value-example"}
+{"stream":"custom_stream_name","customfield1":"field-value-example"}
+```
+
+- `command-demo-text` pod logs:
+```
+2021-04-13T09:54:36Z|field1value|field2value
+2021-04-13T09:54:46Z|field1value|field2value
+```
+
+- Logs parsing solution:
+  - For the `json` pod (which is labeled with `purpose: demonstrate-command-json`) we apply the following template with autodiscover:
+```
+                - type: container
+                  paths:
+                    - /var/log/containers/*${data.kubernetes.container.id}.log
+                  tags: ["customformat"]
+                  processors:
+                    - decode_json_fields:
+                        fields: ["message"]
+                        process_array: false
+                        max_depth: 1
+                        target: ""
+                        overwrite_keys: true
+                        add_error_key: true
+```
+
+
+  - For the `text` pod (which is labeled with `purpose: demonstrate-command-json`) we apply a `pipeline` option to the input via another autodiscover template and we create the pipeline in Elasticsearch (as a separate activity):
+
+```
+           - condition:
                 equals:
                   kubernetes.labels.purpose: "demonstrate-command-text"
               config:
