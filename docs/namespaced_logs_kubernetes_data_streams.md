@@ -2,6 +2,8 @@
 
 This document explains the manifest available [here](/resources/02_k8s_monitoring/extras/ns_data_streams/filebeat_K8s_logs_all_namespaces_data_streams.yaml), which is intended to collect all Kubernetes pods logs sending them to different indices divided by namespace.
 
+Note: It's important to understand the implications of creating too many indices and shards in an Elasticsearch cluster. I strongly recommend [this reading](https://www.elastic.co/blog/how-many-shards-should-i-have-in-my-elasticsearch-cluster). Don't split similar data into multiple (a lot of) indices if there isn't a clear need or benefit from that.
+
 ### Challenges:
 
 - Doing this with filebeat and autodiscover is technically easy __if we don't want to use any kind of ILM__ associated to the final destination. In such case we only need to configure something like this in our filebeat:
@@ -83,3 +85,8 @@ With the previous in mind, we just need to configure the filebeat output to use 
 - Monitoring disabled (feel free to enable it following the other docs of this project)
 
 - Logs collection of this pod disabled with the pod level annotation `co.elastic.logs/enabled: "false"` (I usually avoid self collecting logs in a log collector)
+
+### Other options & suggestions:
+(work in progress)
+
+- Keep default filebeat config and with an [Elasticsearch pipeline](https://www.elastic.co/guide/en/elasticsearch/reference/current/ingest.html) put the documents in the final places (index / alias / data stream). This option gives more flexibility in case we want to split just part of the data and not all.
