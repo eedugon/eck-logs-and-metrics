@@ -6,9 +6,9 @@ In this example the monitored cluster is called `prod-es1`, and the monitoring c
 
 ### Manifest Highlights:
 
-- Metricbeat runs as a Deployment
+- Metricbeat runs as a Deployment on the namespace of the cluster to monitor (__not in the namespace of the destination cluster__)
 
-- Metricbeat output referended to the monitoring cluster (in this case the `logging-and-metrics` cluster):
+- Metricbeat output referencing to the monitoring cluster (in this case the `logging-and-metrics` cluster):
 ```
   elasticsearchRef:
     name: logging-and-metrics
@@ -42,11 +42,9 @@ In this example the monitored cluster is called `prod-es1`, and the monitoring c
                       - shard
                     period: 10s
                     hosts: "https://${data.host}:${data.ports.https}"
-                    username: ${MONITORED_ES_USERNAME}
-                    password: ${MONITORED_ES_PASSWORD}
-                    # WARNING: disables TLS as the default certificate is not valid for the pod FQDN
-                    # TODO: switch this to "certificate" when available: https://github.com/elastic/beats/issues/8164
-                    ssl.verification_mode: "none"
+                    username: "elastic" # To do: change this to a more restricted user
+                    password: "${kubernetes.prod.prod-es1-es-elastic-user.elastic}" # secret with the password of the user
+                    ssl.verification_mode: "none" # mount the CA of the destination cluster to be able to perform certificate validation
                     xpack.enabled: true
 ```
 
@@ -61,26 +59,17 @@ In this example the monitored cluster is called `prod-es1`, and the monitoring c
                       - status
                     period: 10s
                     hosts: "https://${data.host}:${data.ports.https}"
-                    username: ${MONITORED_ES_USERNAME}
-                    password: ${MONITORED_ES_PASSWORD}
-                    # WARNING: disables TLS as the default certificate is not valid for the pod FQDN
-                    # TODO: switch this to "certificate" when available: https://github.com/elastic/beats/issues/8164
-                    ssl.verification_mode: "none"
+                    username: "elastic" # To do: change this to a more restricted user
+                    password: "${kubernetes.prod.prod-es1-es-elastic-user.elastic}" # secret with the password of the user
+                    ssl.verification_mode: "none" # mount the CA of the destination cluster to be able to perform certificate validation
                     xpack.enabled: true
 ```
 
-- User and password are provided as environment variables mounted from a secret.
-```
-          - name: MONITORED_ES_USERNAME
-            value: elastic
-          - name: MONITORED_ES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: elastic
-                name: prod-es1-es-elastic-user
-```
+- Password provided directly from a secret, as showed in the [autodiscover documentation](https://www.elastic.co/guide/en/beats/metricbeat/current/configuration-autodiscover.html#_kubernetes_secrets). The secret must reside in the same namespace as the running pod.
 
 Note: The `elastic` user account (`superuser`) is not really needed for monitoring purposes. __Create a different user with the built-in role `remote_monitoring_collector`__ as explained in [this doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-metricbeat.html), and use that user instead.
+
+Consider creating a secret with the user and password and reference both in the configuration.
 
 - Monitoring (of the beat itself) enabled via [HTTP/Metricbeat collection](https://www.elastic.co/guide/en/beats/metricbeat/current/monitoring-metricbeat-collection.html).
 
