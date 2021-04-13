@@ -1,4 +1,4 @@
-# Sending all Kubernetes logs towards different indices splitted by namespace (and data streams)
+# Sending all Kubernetes logs towards different indices splitted by namespace and using data streams
 
 This document explains the manifest available [here](/resources/02_k8s_monitoring/extras/ns_data_streams/filebeat_K8s_logs_all_namespaces_data_streams.yaml), which is intended to collect all Kubernetes pods logs sending them to different indices divided by namespace.
 
