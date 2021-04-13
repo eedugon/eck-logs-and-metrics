@@ -22,7 +22,7 @@ spec:
           # used when hostNetwork is true
           #host: ${HOSTNAME}
           scope: node
-          # Option1 (not used here): with hints the configuration would be placed at pod annotations level.
+          # hints disabled (this example is intented to fetch logs only from specific pods with conditional autodiscover templates)
           hints:
             enabled: false
             default_config:
@@ -91,8 +91,6 @@ spec:
             name: monitoring
             protocol: TCP
           volumeMounts:
-          - name: data
-            mountPath: /usr/share/filebeat/data
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
@@ -106,9 +104,3 @@ spec:
         - name: varlog
           hostPath:
             path: /var/log
-        # data folder stores a registry of read status for all files, so we don't send everything again on a Filebeat pod restart
-        - name: data
-          hostPath:
-            # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
-            path: /var/lib/filebeat-data-ingress-controller
-            type: DirectoryOrCreate

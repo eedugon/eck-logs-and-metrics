@@ -1,6 +1,3 @@
-# review
-# not following guidelines from https://raw.githubusercontent.com/elastic/beats/master/deploy/kubernetes/filebeat-kubernetes.yaml
-# missing data path volume
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
@@ -43,7 +40,7 @@ spec:
           # disabling self-collecing logs
           co.elastic.logs/enabled: "false"
       spec:
-        # Toleration for all type of hints (we want FB to run in all nodes)
+        # Toleration for all type of hints (we want this filebeat to run in all nodes)
         tolerations:
           - effect: NoExecute
             operator: Exists
@@ -63,12 +60,13 @@ spec:
             name: monitoring
             protocol: TCP
           securityContext:
-            runAsUser: 0 # needed for hostPath data volume and /etc/beat.yml mount by ECK
+            runAsUser: 0 # needed for hostPath data volume and /etc/beat.yml mounts by ECK
             # If using Red Hat OpenShift uncomment this:
             #privileged: true
           volumeMounts:
-          - name: data
-            mountPath: /usr/share/filebeat/data
+          # not needed in ECK (ECK will mount a hostPath for filebeat data)
+          # - name: data
+          #   mountPath: /usr/share/filebeat/data
           - name: varlogcontainers
             mountPath: /var/log/containers
           - name: varlogpods
@@ -91,8 +89,9 @@ spec:
           hostPath:
             path: /var/lib/docker/containers
         # data folder stores a registry of read status for all files, so we don't send everything again on a Filebeat pod restart
-        - name: data
-          hostPath:
-            # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
-            path: /var/lib/filebeat-data-logs-k8s
-            type: DirectoryOrCreate
+        # Not needed when filebeat is orchestrated by ECK
+        # - name: data
+        #   hostPath:
+        #     # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
+        #     path: /var/lib/filebeat-data-customformat
+        #     type: DirectoryOrCreate

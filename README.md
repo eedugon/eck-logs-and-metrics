@@ -75,20 +75,9 @@ Deploy [Kube-state-metrics](https://github.com/kubernetes/kube-state-metrics):
 kubectl apply -f resources/01_infra/external/kube-state-metrics-v2.0.0-rc.0/standard
 ```
 
-### Ingress controller and ingress example installation (optional)
-
-[Ingress controller](https://github.com/kubernetes/ingress-nginx) is only used as an example for Filebeat and Metricbeat modules configuration.
-
-Deploy ingress-controller with:
-
-```
-kubectl apply -f resources/01_infra/external/ingress-controller-0.45.0
-kubectl apply -f resources/01_infra/external/ingress_app_example
-```
-
 ### Trial License (Optional)
 
-If you want to test Enterprise level features enable the trial at ECK level:
+If you want to try out Enterprise level features (like Elastic Stack centralized monitoring) enable the trial at ECK level:
 
 ```
 kubectl apply -f resources/01_infra/enterprise-trial

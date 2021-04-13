@@ -1,8 +1,4 @@
 # Example of Filebeat manifest to deliver logs from ES clusters of a namespace using hints based autodiscover.
-# hostNetwork disabled
-# Pending: move HINTS to static templates.
-# hostNetwoek
-
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
@@ -114,8 +110,6 @@ spec:
             name: monitoring
             protocol: TCP
           volumeMounts:
-          - name: data
-            mountPath: /usr/share/filebeat/data
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
@@ -129,9 +123,3 @@ spec:
         - name: varlog
           hostPath:
             path: /var/log
-        # data folder stores a registry of read status for all files, so we don't send everything again on a Filebeat pod restart
-        - name: data
-          hostPath:
-            # When filebeat runs as non-root user, this directory needs to be writable by group (g+w).
-            path: /var/lib/filebeat-data-prod-self
-            type: DirectoryOrCreate
