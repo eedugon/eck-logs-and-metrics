@@ -4,17 +4,19 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
 
 ### Challenges:
 
-- Doing this with filebeat and autodiscover is technically easy if we don't want to use any kind of ILM associated to the final destination. In such case we only need to configure something like that in our filebeat:
+- Doing this with filebeat and autodiscover is technically easy if we don't want to use any kind of ILM associated to the final destination. In such case we only need to configure something like this in our filebeat:
 
 ```
 output.elasticsearc.index: "filebeat-%{[agent.version]}-%{[kubernetes.namespace]:missing}-%{+yyyy.MM.dd}"
 ```
 
-- If we want to perform this integration with __standard ILM__ it's critical to know the namespaces in advance, as we must perform the [bootstrapping]() of the initial index + the alias before shipping any data (filebeat automatic ILM setup doesn't work for multiple indices). Also, if we create a new namespace and Elasticsearch index + alias wasn't bootstrapped problems will occur as we will end up having real indices instead of using aliases for writting the data, so ILM won't really work.
+- If we want to perform this integration with __[standard ILM](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-lifecycle-management.html)__ it's critical to know the namespaces in advance, as we must perform the [bootstrapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-index-lifecycle-management.html#ilm-gs-alias-bootstrap) of the initial index + the alias before shipping any data (filebeat automatic ILM setup doesn't work for multiple indices). Also, if we create a new namespace and Elasticsearch index + alias wasn't bootstrapped problems will occur as we will end up having real indices instead of using aliases for writting the data, so ILM won't really work.
 
-- With [data streams]() this will work perfectly fine, as `data streams` are internally using ILM and they don't require the initial index to be bootstrapped.
+- With Elasticsearch [data streams](https://www.elastic.co/guide/en/elasticsearch/reference/current/data-streams.html) this will work perfectly fine, as `data streams` are internally using ILM and they don't require the initial index to be bootstrapped.
 
 For this example we are not converting `filebeat*` to data streams as I don't want to interfere with the standard indices. We will be relying on the default `logs-*-*` pattern that by default comes associated with data streams in Elasticsearch `7.10+`.
+
+If you want to use an special pattern (not covered by the buil-in template for data streams) you just need to create first in Elaticsearch a template to cover that patter and ensure the `data_stream` option is selected, as explained in the official tutorial [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-index-lifecycle-management.html#ilm-gs-apply-policy)
 
 ### Manifest Highlights:
 
