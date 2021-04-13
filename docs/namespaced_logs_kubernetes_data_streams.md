@@ -4,7 +4,7 @@ This document explains the manifest available [here](/resources/02_k8s_monitorin
 
 ### Challenges:
 
-- Doing this with filebeat and autodiscover is technically easy if we don't want to use any kind of ILM associated to the final destination. In such case we only need to configure something like this in our filebeat:
+- Doing this with filebeat and autodiscover is technically easy __if we don't want to use any kind of ILM__ associated to the final destination. In such case we only need to configure something like this in our filebeat:
 
 ```
 output.elasticsearc.index: "filebeat-%{[agent.version]}-%{[kubernetes.namespace]:missing}-%{+yyyy.MM.dd}"
@@ -27,9 +27,6 @@ If you want to use an special pattern (not covered by the buil-in template for d
 - ILM setup disabled as we will be writing into multiple `places`:
 ```
     setup.ilm.enabled: false
-    setup.template.enabled: true
-    setup.template.name: "logs-fb-%{[agent.version]}"
-    setup.template.pattern: "logs-fb-%{[agent.version]}-*"
 ```
 
 - Template setup enabled to load the mappings to the final indices / data streams
@@ -41,7 +38,9 @@ If you want to use an special pattern (not covered by the buil-in template for d
 
 When creating in Elasticsearch 7.10+ something like `logs-fb-abc-def`, there's a default template for `logs-*-*` that will force the creation of a `data stream` with the provided name, in this case we would end up with a data stream called `logs-fb-abc-def` and internally it will be pointing to some `.ds-xxxx` indices, all handled by ILM.
 
-- Elasticsearch output overwrite: In this case we don'w want ECK to configure the output automatically so we provide the following values:
+With the previous in mind, we just need to configure the filebeat output to use an index like `"logs-fb-%{[agent.version]}-%{[kubernetes.namespace]:missing}"` and that will use data streams directly.
+
+- Elasticsearch output overwrite: In this case we don't want ECK to configure the output automatically so we provide the following values:
 
 ```
     output:
@@ -65,7 +64,7 @@ When creating in Elasticsearch 7.10+ something like `logs-fb-abc-def`, there's a
                   name: logging-and-metrics-es-elastic-user
 ```
 
-- Hints based autodiscover configured to fetch logs from all pods by default:
+- Hints based autodiscover configured to fetch logs from all pods by default (similar to the default manifest suggested in the official doc):
 
 ```
     filebeat:
