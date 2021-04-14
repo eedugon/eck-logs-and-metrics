@@ -9,7 +9,7 @@ Note: It's important to understand the implications of creating too many indices
 - Doing this with filebeat and autodiscover is technically easy __if we don't want to use any kind of ILM__ associated to the final destination. In such case we only need to configure something like this in our filebeat:
 
 ```
-output.elasticsearc.index: "filebeat-%{[agent.version]}-%{[kubernetes.namespace]:missing}-%{+yyyy.MM.dd}"
+output.elasticsearch.index: "filebeat-%{[agent.version]}-%{[kubernetes.namespace]:missing}-%{+yyyy.MM.dd}"
 ```
 
 - If we want to perform this integration with __[standard ILM](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-lifecycle-management.html)__ it's critical to know the namespaces in advance, as we must perform the [bootstrapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-index-lifecycle-management.html#ilm-gs-alias-bootstrap) of the initial index + the alias before shipping any data (filebeat automatic ILM setup doesn't work for multiple indices). Also, if we create a new namespace and Elasticsearch index + alias wasn't bootstrapped problems will occur as we will end up having real indices instead of using aliases for writting the data, so ILM won't really work.
