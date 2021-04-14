@@ -94,7 +94,7 @@ Example of configuration to add a custom pipeline in the input.
 
 - Logs parsing solution: [manifest](/resources/02_k8s_monitoring/extras/custom-formats/filebeat-daemonset-customformat.yaml)
   - For the `json` pod (which is labeled with `purpose: demonstrate-command-json`) we apply the following template with autodiscover:
-  
+
 ```
             - condition:
                 equals:
@@ -132,4 +132,22 @@ Example of configuration to add a custom pipeline in the input.
                     - /var/log/containers/*${data.kubernetes.container.id}.log
                   tags: ["customformat"]
                   pipeline: custom-text-example
+```
+
+
+The associated pipeline can be created from `Kibana DevTools` executing the following:
+
+```
+PUT _ingest/pipeline/custom-text-example
+{
+ "processors": [
+   {
+     "dissect": {
+       "tag": "dissect-processed",
+       "field": "message",
+       "pattern": "%{@timestamp}|%{customfield1}|%{customfield2}"
+     }
+   }
+ ]
+}
 ```
