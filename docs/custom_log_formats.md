@@ -94,10 +94,20 @@ Example of configuration to add a custom pipeline in the input.
 
 - Logs parsing solution: [manifest](/resources/02_k8s_monitoring/extras/custom-formats/filebeat-daemonset-customformat.yaml)
   - For the `json` pod (which is labeled with `purpose: demonstrate-command-json`) we apply the following template with autodiscover:
+  
 ```
+            - condition:
+                equals:
+                  kubernetes.labels.purpose: "demonstrate-command-json"
+              config:
                 - type: container
                   paths:
                     - /var/log/containers/*${data.kubernetes.container.id}.log
+                  # This won't work
+                  #json.keys_under_root: false
+                  #json.add_error_key: true
+                  #json.message_key: message
+                  # This works
                   tags: ["customformat"]
                   processors:
                     - decode_json_fields:
