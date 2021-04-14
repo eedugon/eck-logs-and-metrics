@@ -4,10 +4,10 @@ apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
   namespace: dev
-  name: metrics-dev-es1-central
+  name: metrics-dev-monitoring-central
 spec:
   type: metricbeat
-  version: 7.10.2
+  version: 7.11.2
   elasticsearchRef:
     name: logging-and-metrics
     namespace: monitoring
@@ -26,7 +26,7 @@ spec:
             hints.enabled: false # there's no need to enable hints if we don't have annotations for the metrics
             templates:
               - condition:
-                  equals.kubernetes.labels.elasticsearch_k8s_elastic_co/cluster-name: dev-es1
+                  equals.kubernetes.labels.elasticsearch_k8s_elastic_co/cluster-name: dev-monitoring
                   #equals.kubernetes.labels.stack-monitoring-elastic-co/type: es
                 config:
                   - module: elasticsearch
@@ -42,14 +42,13 @@ spec:
                       - shard
                     period: 10s
                     hosts: "https://${data.host}:${data.ports.https}"
-                    username: ${MONITORED_ES_USERNAME}
-                    password: ${MONITORED_ES_PASSWORD}
-                    # WARNING: disables TLS as the default certificate is not valid for the pod FQDN
-                    # TODO: switch this to "certificate" when available: https://github.com/elastic/beats/issues/8164
+                    username: "elastic" # to do: use a more restricted user instead
+                    password: "${kubernetes.dev.dev-monitoring-es-elastic-user.elastic}"
+                    # mount the CA of the endpoint to monitor to be able to perform certificate verification
                     ssl.verification_mode: "none"
                     xpack.enabled: true
               - condition:
-                  equals.kubernetes.labels.kibana_k8s_elastic_co/name: dev-es1
+                  equals.kubernetes.labels.kibana_k8s_elastic_co/name: dev-monitoring
                   #equals.kubernetes.labels.stack-monitoring-elastic-co/type: kb
                 config:
                   - module: kibana
@@ -58,10 +57,9 @@ spec:
                       - status
                     period: 10s
                     hosts: "https://${data.host}:${data.ports.https}"
-                    username: ${MONITORED_ES_USERNAME}
-                    password: ${MONITORED_ES_PASSWORD}
-                    # WARNING: disables TLS as the default certificate is not valid for the pod FQDN
-                    # TODO: switch this to "certificate" when available: https://github.com/elastic/beats/issues/8164
+                    username: "elastic" # to do: use a more restricted user instead
+                    password: "${kubernetes.dev.dev-monitoring-es-elastic-user.elastic}"
+                    # mount the CA of the endpoint to monitor to be able to perform certificate verification
                     ssl.verification_mode: "none"
                     xpack.enabled: true
     processors:
@@ -85,11 +83,3 @@ spec:
           - containerPort: 5066
             name: monitoring
             protocol: TCP
-          env:
-          - name: MONITORED_ES_USERNAME
-            value: elastic
-          - name: MONITORED_ES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: elastic
-                name: dev-es1-es-elastic-user
