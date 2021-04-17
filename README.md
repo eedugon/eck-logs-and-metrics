@@ -2,36 +2,34 @@ _(Work in progres...)_
 
 # eck-logs-and-metrics
 
+Monitoring Kubernetes and Elasticsearch Clusters with ECK
+
 The purpose of this project is to extend the default manifests proposed in the official __Elastic docs__ for Kubernetes Observability (mainly running [Filebeat](https://www.elastic.co/guide/en/beats/filebeat/current/running-on-kubernetes.html) and [Metricbeat](https://www.elastic.co/guide/en/beats/metricbeat/current/running-on-kubernetes.html) on Kubernetes), offering more advanced examples and use cases.
 
 All resources will be deployed by the Elastic Operator (ECK). If ECK is not used in your environment you could still adapt part of the manifests to your needs.
 
 You can also follow this project as a tutorial to introduce yourself into Kubernetes monitoring with the Elastic Stack.
 
-Topics covered and provided examples:
+Topics covered and provided examples / use cases:
 
 - Kubernetes Observability:
-  - Metrics (default proposal)
-  - Logs (default proposal)
-  - Custom logs (structured text and json examples)
-  - Namespace based indices (managed internally by Elasticsearch _data streams_)
-  - Using modules (example for ingress controller available)
+  - Kubernetes [Metrics](docs/default_metrics_kubernetes.md) (default proposal)
+  - [Logging](docs/default_logs_kubernetes.md) (default proposal)
+  - Parsing [custom log formats](docs/custom_log_formats.md) (`structured text` and `json` examples)
+  - [Distributing logs into multiple indices](docs/namespaced_logs_kubernetes_data_streams.md) (managed internally by Elasticsearch _data streams_)
+  - (_TBD_) Using modules (example for ingress controller available)
+  - (_TBD_) Using modules (example for ingress controller available)
 
 - Elastic Stack monitoring on Kubernetes:
   - Self-monitoring
   - Dedicated monitoring cluster
   - Centralized monitoring (requires an enterprise license)
 
-All the examples
-
-Monitoring Kubernetes and Elasticsearch Clusters with ECK
-
 __Dependencies:__
 
 - kube-state-metrics 2.0.0-rc.0: https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.0.0-rc.0
 
 - Load Balancers integration: For those systems without load balancers available consider exposing the services for external traffic in any other way (`kubectl port-forward`, ingress controller, ...). We expose Kibana and ingress-controller services as LoadBalancers in the proposed manifests.
-
 
 __Background and concepts__
 
