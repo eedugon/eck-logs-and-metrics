@@ -1,6 +1,6 @@
 # Default Kubernetes Metrics with Metricbeat
 
-This document explains the manifest available [here](/resources/02_k8s_monitoring/10_kube-system_metrics_K8S.yaml), which is intended to deploy Metricbeat on Kubernetes to perform monitoring of `Kubernetes nodes` and `Kubernetes cluster` state.
+This document explains the manifest available [here](/resources/02_k8s_monitoring/metrics/10_kube-system_metrics_K8S.yaml), which is intended to deploy Metricbeat on Kubernetes to perform monitoring of `Kubernetes nodes` and `Kubernetes cluster` state.
 
 ### Manifest Highlights:
 
