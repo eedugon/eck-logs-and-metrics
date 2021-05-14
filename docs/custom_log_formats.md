@@ -11,7 +11,7 @@ Do not use the `json` options already available in the `container` input because
 
 For example, if `hints based` autodiscover is in place you could add the following annotations to the pods:
 ```
-      co.elastic.logs/enabled: false # uncomment that if you don't want hints based autodiscover to fetch these logs
+      co.elastic.logs/enabled: true # uncomment that if you don't want hints based autodiscover to fetch these logs
       co.elastic.logs/processors.1.decode_json_fields.fields: ["message"]
       co.elastic.logs/processors.1.decode_json_fields.target: ""
       co.elastic.logs/processors.1.decode_json_fields.overwrite_keys: "true"
@@ -49,14 +49,14 @@ Note: watch out for field mappings explosion if your json content has too many f
 
 ## Calling specific elasticsearch pipelines for specific logs processing
 
-If your pod is writting logs in plain text you can rely on an [elasticsearch pipeline]() to process and enrich the data before indexing.
+If your pod is writing logs in plain text you can rely on an [elasticsearch pipeline]() to process and enrich the data before indexing.
 
 #### Hints based autodiscover
 
 Include the following annotations in the pods:
 
 ```
-      co.elastic.logs/enabled: false
+      co.elastic.logs/enabled: true
       co.elastic.logs/pipeline: ["custom-text-example"]
 ```
 
