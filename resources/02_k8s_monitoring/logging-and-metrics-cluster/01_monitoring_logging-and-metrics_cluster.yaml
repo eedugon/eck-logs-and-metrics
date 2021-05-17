@@ -67,9 +67,6 @@ metadata:
 spec:
   http:
     service:
-      #metadata:
-      #  annotations:
-      #    aaaaa: "aaa"
       spec:
         type: LoadBalancer
   version: 7.11.2
@@ -84,11 +81,6 @@ spec:
     # https://www.elastic.co/guide/en/kibana/current/monitoring-settings-kb.html
     monitoring.ui.container.elasticsearch.enabled: true
   podTemplate:
-    metadata:
-      annotations:
-        #co.elastic.logs/enabled: "true"
-        #co.elastic.logs/module: "kibana"
-        co.elastic.logs/fileset: "log" # audit fileset will duplicate all logs
     spec:
       # tolerations (irrelevant if tains are not configured in k8s nodes)
       tolerations:
