@@ -85,18 +85,29 @@ kubectl apply -f resources/01_infra/enterprise-trial
 
 ### Basic components
 
+- Logging and metrics Elasticsearch cluster:
+
 ```
-kubectl apply -f resources/02_k8s_monitoring
+kubectl apply -f resources/02_k8s_monitoring/logging-and-metrics
 ```
 
-The previous command will deploy the following components:
-- Role bindings for filebeat and metricbeat service accounts on monitoring namespace
-- `logs-and-metrics` Elasticsearch Cluster
-- `logs-and-metrics` Kibana instance.
-- `filebeat` DaemonSet configured to fetch **all pods** logs.
-- `metricbeat` for Kubernetes monitoring with a DaemonSet strategy.
+- `metricbeat` for Kubernetes monitoring with a DaemonSet strategy (including RBAC)
 
-(more details?) self-monitoring in that cluster? (custom metrics example)
+```
+kubectl apply -f resources/02_k8s_monitoring/metrics
+```
+
+- `filebeat` DaemonSet configured to fetch **all pods** logs (including RBAC)
+
+```
+kubectl apply -f resources/02_k8s_monitoring/logs
+```
+
+- Stack monitoring of `logging-and-metrics` cluster plus all beats:
+
+```
+kubectl apply -f resources/02_k8s_monitoring/stack_monitoring
+```
 
 Useful commands to monitor creation of components:
 ```
@@ -158,8 +169,6 @@ curl -u elastic -k -X POST "https://logging-and-metrics.edudemo:5601/api/saved_o
 Check the output of the previous command for errors.
 
 (you will need elastic password, which is available in `logging-and-metrics-es-elastic-user` secret and can be retrieved with `tools/demotools/show_elastic_pswds.sh`).
-
-
 
 ### Optional components / examples
 
