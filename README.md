@@ -163,7 +163,7 @@ The provided dashboard is designed to "monitor" and overview the previous data f
 To install the custom dashboard and associated resources:
 
 ```
-curl -u elastic -k -X POST "https://logging-and-metrics.edudemo:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form 'file=@kibana/kibana-resources.ndjson'
+curl -u elastic -k -X POST "https://logging-and-metrics.mydomain:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form 'file=@kibana/kibana-resources.ndjson'
 ```
 
 Check the output of the previous command for errors.
@@ -195,7 +195,7 @@ Obtain elastic password and prepare static host resolution with the previous too
 ```
 
 Kibana access example:
-https://prod-es1.edudemo:5601/
+https://prod-es1.mydomain:5601/
 
 
 
