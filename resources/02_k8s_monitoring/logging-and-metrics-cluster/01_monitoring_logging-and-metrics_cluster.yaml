@@ -9,7 +9,7 @@ spec:
       spec:
   #      type: LoadBalancer
         type: ClusterIP
-  version: 7.11.2
+  version: 7.12.1
   nodeSets:
   - name: default50g
     count: 3
@@ -69,7 +69,7 @@ spec:
     service:
       spec:
         type: LoadBalancer
-  version: 7.11.2
+  version: 7.12.1
   count: 1
   elasticsearchRef:
     name: logging-and-metrics

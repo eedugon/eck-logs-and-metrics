@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 spec:
   type: metricbeat
-  version: 7.11.2
+  version: 7.12.1
   elasticsearchRef:
     name: logging-and-metrics
     namespace: monitoring
