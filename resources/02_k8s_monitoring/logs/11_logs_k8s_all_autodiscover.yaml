@@ -20,6 +20,7 @@ spec:
       autodiscover:
         providers:
         - type: kubernetes
+          scope: node
           node: ${NODE_NAME}
           hints:
             enabled: true
@@ -55,10 +56,6 @@ spec:
         hostNetwork: true # Allows to provide richer host metadata
         containers:
         - name: filebeat
-          ports:
-          - containerPort: 5067
-            name: monitoring
-            protocol: TCP
           securityContext:
             runAsUser: 0 # needed for hostPath data volume and /etc/beat.yml mounts by ECK
             # If using Red Hat OpenShift uncomment this:

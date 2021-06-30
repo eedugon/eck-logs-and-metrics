@@ -145,6 +145,7 @@ spec:
           volumeMounts:
           - mountPath: /hostfs/sys/fs/cgroup
             name: cgroup
+          # this mount point shouldn't be needed as we don't use docker module.
           - mountPath: /var/run/docker.sock
             name: dockersock
           - mountPath: /hostfs/proc
