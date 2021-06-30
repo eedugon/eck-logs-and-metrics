@@ -20,7 +20,7 @@ metadata:
   namespace: monitoring
 spec:
   type: filebeat
-  version: 7.12.1
+  version: 7.13.2
   elasticsearchRef:
     name: logging-and-metrics
   config:

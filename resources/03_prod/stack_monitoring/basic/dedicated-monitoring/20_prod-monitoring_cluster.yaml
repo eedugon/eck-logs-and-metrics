@@ -14,7 +14,7 @@ spec:
   #  service:
   #    spec:
   #      type: LoadBalancer
-  version: 7.11.2
+  version: 7.13.2
   # auth:
   #   fileRealm:
   #   - secretName: generic-monitoring-user-file
@@ -74,7 +74,7 @@ spec:
     service:
       spec:
         type: LoadBalancer
-  version: 7.11.2
+  version: 7.13.2
   count: 1
   #config:
   #  xpack.security.encryptionKey: "fkasjdasdkfj273kjasdahsdjasdjasd7812"
