@@ -1,10 +1,11 @@
 ---
 # permissions needed for metricbeat
-# source: https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-module-kubernetes.html
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: metricbeat
+  labels:
+    k8s-app: metricbeat
 rules:
 - apiGroups: [""]
   resources:
@@ -12,9 +13,13 @@ rules:
   - namespaces
   - events
   - pods
-  - secrets
   - services
   verbs: ["get", "list", "watch"]
+# Enable this rule only if planing to use Kubernetes keystore
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs: ["get"]
 - apiGroups: ["extensions"]
   resources:
   - replicasets
@@ -35,13 +40,63 @@ rules:
   - "/metrics"
   verbs:
   - get
-- apiGroups:
-    - coordination.k8s.io
-  resources:
-    - leases
-  verbs:
-    - '*'
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: metricbeat
+  namespace: kube-system
+  labels:
+    k8s-app: metricbeat
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs: ["get", "create", "update"]
+---
+# Pre 7.13 ClustrRole
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: metricbeat
+# rules:
+# - apiGroups: [""]
+#   resources:
+#   - nodes
+#   - namespaces
+#   - events
+#   - pods
+#   - secrets
+#   - services
+#   verbs: ["get", "list", "watch"]
+# - apiGroups: ["extensions"]
+#   resources:
+#   - replicasets
+#   verbs: ["get", "list", "watch"]
+# - apiGroups: ["apps"]
+#   resources:
+#   - statefulsets
+#   - deployments
+#   - replicasets
+#   verbs: ["get", "list", "watch"]
+# - apiGroups:
+#   - ""
+#   resources:
+#   - nodes/stats
+#   verbs:
+#   - get
+# - nonResourceURLs:
+#   - "/metrics"
+#   verbs:
+#   - get
+# - apiGroups:
+#     - coordination.k8s.io
+#   resources:
+#     - leases
+#   verbs:
+#     - '*'
+#---
 # 7.10 role needed
 # apiVersion: rbac.authorization.k8s.io/v1
 # kind: ClusterRole
