@@ -6,7 +6,7 @@ metadata:
   namespace: prod
 spec:
   type: filebeat
-  version: 7.13.2
+  version: 7.13.3
   elasticsearchRef:
     name: prod-es1
   #kibanaRef:
