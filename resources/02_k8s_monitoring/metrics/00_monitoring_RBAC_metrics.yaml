@@ -3,6 +3,8 @@ kind: ServiceAccount
 metadata:
   name: metricbeat
   namespace: monitoring
+  labels:
+    k8s-app: metricbeat
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -22,6 +24,8 @@ kind: ServiceAccount
 metadata:
   name: metricbeat
   namespace: kube-system
+  labels:
+    k8s-app: metricbeat
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -44,7 +48,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: metricbeat
-    namespace: monitoring
+    namespace: kube-system
 roleRef:
   kind: Role
   name: metricbeat
@@ -53,7 +57,7 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: metricbeat
+  name: metricbeat-kubeadm-config
   namespace: kube-system
 subjects:
   - kind: ServiceAccount
@@ -61,5 +65,6 @@ subjects:
     namespace: kube-system
 roleRef:
   kind: Role
-  name: metricbeat
+  name: metricbeat-kubeadm-config
   apiGroup: rbac.authorization.k8s.io
+# We probably need to add here 2 RoleBindings for the monitoring service account

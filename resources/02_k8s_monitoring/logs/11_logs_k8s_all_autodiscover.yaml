@@ -5,7 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   type: filebeat
-  version: 7.13.3
+  version: 7.16.2
   elasticsearchRef:
     name: logging-and-metrics
   kibanaRef:
@@ -49,6 +49,13 @@ spec:
             operator: Exists
           - key: CriticalAddonsOnly
             operator: Exists
+        # resources:
+        #   requests:
+        #     memory: 1Gi
+        #     cpu: 300m
+        #   limits:
+        #     memory: 4Gi
+        #     cpu: 2
         serviceAccountName: filebeat
         automountServiceAccountToken: true
         terminationGracePeriodSeconds: 30

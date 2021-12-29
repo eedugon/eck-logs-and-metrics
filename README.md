@@ -5,6 +5,10 @@ _(Work in progres...)_
 2021-12-29: ECK updated to 1.9.1
 Elastic Stack components updated to 7.16.2
 
+Dimensioning:
+3 nodes --> 2 vCPUs, 8G
+
+
 # eck-logs-and-metrics
 
 Monitoring Kubernetes and Elasticsearch Clusters with ECK

@@ -1,5 +1,6 @@
 ---
-# permissions needed for metricbeat
+# permissions needed for metricbeat (7.16.2 verified)
+# Metricbeat ClusteRole
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -30,6 +31,10 @@ rules:
   - deployments
   - replicasets
   verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources:
+  - jobs
+  verbs: ["get", "list", "watch"]
 - apiGroups:
   - ""
   resources:
@@ -41,10 +46,12 @@ rules:
   verbs:
   - get
 ---
+# metricbeat kube-system roles
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: metricbeat
+  # should be the namespace where metricbeat is running
   namespace: kube-system
   labels:
     k8s-app: metricbeat
@@ -55,63 +62,23 @@ rules:
       - leases
     verbs: ["get", "create", "update"]
 ---
-# Pre 7.13 ClustrRole
-# apiVersion: rbac.authorization.k8s.io/v1
-# kind: ClusterRole
-# metadata:
-#   name: metricbeat
-# rules:
-# - apiGroups: [""]
-#   resources:
-#   - nodes
-#   - namespaces
-#   - events
-#   - pods
-#   - secrets
-#   - services
-#   verbs: ["get", "list", "watch"]
-# - apiGroups: ["extensions"]
-#   resources:
-#   - replicasets
-#   verbs: ["get", "list", "watch"]
-# - apiGroups: ["apps"]
-#   resources:
-#   - statefulsets
-#   - deployments
-#   - replicasets
-#   verbs: ["get", "list", "watch"]
-# - apiGroups:
-#   - ""
-#   resources:
-#   - nodes/stats
-#   verbs:
-#   - get
-# - nonResourceURLs:
-#   - "/metrics"
-#   verbs:
-#   - get
-# - apiGroups:
-#     - coordination.k8s.io
-#   resources:
-#     - leases
-#   verbs:
-#     - '*'
-#---
-# 7.10 role needed
-# apiVersion: rbac.authorization.k8s.io/v1
-# kind: ClusterRole
-# metadata:
-#   name: filebeat
-# rules:
-# - apiGroups: [""] # "" indicates the core API group
-#   resources:
-#   - namespaces
-#   - pods
-#   verbs:
-#   - get
-#   - watch
-#   - list
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: metricbeat-kubeadm-config
+  namespace: kube-system
+  labels:
+    k8s-app: metricbeat
+rules:
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    resourceNames:
+      - kubeadm-config
+    verbs: ["get"]
+# FILEBEAT
 # 7.11 & 7.12 role needed
+# reviewed for 7.16.2
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
