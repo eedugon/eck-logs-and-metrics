@@ -1,5 +1,10 @@
 _(Work in progres...)_
 
+## changelog
+
+2021-12-29: ECK updated to 1.9.1
+Elastic Stack components updated to 7.16.2
+
 # eck-logs-and-metrics
 
 Monitoring Kubernetes and Elasticsearch Clusters with ECK
